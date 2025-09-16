@@ -1,0 +1,33 @@
+*make sure external drive is 2 disks:  F (exfat) and S(ntfs)
+*run chrome as default > login to gmail
+*setup .net 8 and and 9
+*setup ghelper on startup
+*update every single update for windows avaialbe
+*bluethooth > mouse + jotstick
+*uninstall: every bloatware... like: copliot, edge, onedrive, outlook, Samsung apps, apple apps, PAINT, GAME BAR, etc....
+*manually disable firewall > ddfender
+*system properties > performance > settings
+* setup and patch macrium reflect
+*enable voice access
+*add 'end task' option when right clicking app
+*enable voice access
+*disable windows firewall completly permently
+*enable clipboard history
+*make sure stov connects to server 
+
+--
+onstart "F:\backup\windowsapps\installed\ExplorerTabUtility\ExplorerTabUtility\ExplorerTabUtility.exe"; onstart "F:\backup\windowsapps\installed\Ferdium\Ferdium.exe"; onstart "F:\backup\windowsapps\installed\ghelper\GHelper.exe"; onstart "F:\backup\windowsapps\installed\Process Lasso\ProcessLasso.exe"; onstart F:\study\Platforms\windows\autohotkey\mymainahk\current.ahk; powershell -Command "Set-ItemProperty -Path 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run' -Name 'Phone Link' -Value 'ms-yourphone:'"
+
+
+
+
+
+--set this apps at taskbar:
+"F:\backup\windowsapps\installed\Ferdium\Ferdium.exe"
+
+
+
+
+F:\study\Platforms\windows\autohotkey\mymainahk\current.ahk
+
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force; New-Item -Path $PROFILE -ItemType File -Force; Add-Content -Path $PROFILE -Value (Get-Content -Path F:\backup\windowsapps\profile\profile.txt); . $PROFILE; nvid; terminaladmin; ddefender; getcho; choco install nano; startit; getdirectx; get7z; rmgamebar; dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart; dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart; wsl --set-default-version 2; wsl --update; qaccess; unlock; autocomplete; disadmin; lhunter;  & "F:\backup\windowsapps\install\AutoHotkey_2.0.19_setup.exe"; & "F:\backup\windowsapps\installed\firefox\firefox.exe"; ffhome; winget install 9NMPJ99VJBWV 9NKSQGP7F2NH 9PNRBTZXMB4Z 9P98T77876KZ 9NBLGGH43VHV XP8CBJ40XLBWKX Docker.DockerCLI; getdocker2; dlog; pip install --upgrade pip; pipip; rmonedrive; uninstall; rmwinold; qaccess; gdownloads;  getps7; debloat; & "F:\backup\windowsapps\installed\autologon\Autologon64.exe" /accepteula misha DESKTOP-HUAS2L9 13571357; powerplans; onstart F:\study\Platforms\windows\AutoHotkey\myMainAHK\current.ahk; mas; wall; getwmi; steep; winget install -e --id OpenJS.NodeJS.LTS; refreshenv; npm i -g npm@latest; npm cache clean --force; npm uninstall -g @anthropic-ai/claude-code @google/gemini-cli @qwen-code/qwen-code; npm i -g @anthropic-ai/claude-code @google/gemini-cli @qwen-code/qwen-code --force; free 'update'

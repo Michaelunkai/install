@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html id="html">
+	<head><meta charset='utf-8'/><title>WeModPatcher Options</title></head>
+	<!--HTA:APPLICATION ICON-->
+	<script language="vbscript">
+		Set fso = CreateObject("Scripting.FileSystemObject")
+		If fso.FileExists("WeModPatcher.ico") Then
+			document.write "<HTA:APPLICATION APPLICATIONNAME='WeModPatcher Options' BORDER='NORMAL' BORDERSTYLE='NORMAL' CAPTION='YES' CONTEXTMENU='NO' ICON='WeModPatcher.ico' INNERBORDER='NO' MAXIMIZEBUTTON='NO' MINIMIZEBUTTON='NO' NAVIGABLE='NO' SCROLL='NO' SCROLLFLAT='NO' SELECTION='NO' SHOWINTASKBAR='YES' SINGLEINSTANCE='NO' SYSMENU='YES' WINDOWSTATE='NORMAL'/>"
+		Else
+			If fso.FileExists("WeModPatcher.exe") Then
+				document.write "<HTA:APPLICATION APPLICATIONNAME='WeModPatcher Options' BORDER='NORMAL' BORDERSTYLE='NORMAL' CAPTION='YES' CONTEXTMENU='NO' ICON='WeModPatcher.exe' INNERBORDER='NO' MAXIMIZEBUTTON='NO' MINIMIZEBUTTON='NO' NAVIGABLE='NO' SCROLL='NO' SCROLLFLAT='NO' SELECTION='NO' SHOWINTASKBAR='YES' SINGLEINSTANCE='NO' SYSMENU='YES' WINDOWSTATE='NORMAL'/>"
+			Else
+				If fso.FileExists("WeModPatcherTools") Then
+					Set objShell = CreateObject("Wscript.Shell")
+					objShell.Run ("cmd /c tar -xf WeModPatcherTools WeModPatcher.ico"), 0, True
+					document.write "<HTA:APPLICATION APPLICATIONNAME='WeModPatcher Options' BORDER='NORMAL' BORDERSTYLE='NORMAL' CAPTION='YES' CONTEXTMENU='NO' ICON='WeModPatcher.ico' INNERBORDER='NO' MAXIMIZEBUTTON='NO' MINIMIZEBUTTON='NO' NAVIGABLE='NO' SCROLL='NO' SCROLLFLAT='NO' SELECTION='NO' SHOWINTASKBAR='YES' SINGLEINSTANCE='NO' SYSMENU='YES' WINDOWSTATE='NORMAL'/>"
+				Else
+					document.write "<HTA:APPLICATION APPLICATIONNAME='WeModPatcher Options' BORDER='NORMAL' BORDERSTYLE='NORMAL' CAPTION='YES' CONTEXTMENU='NO' ICON='filemgmt.dll' INNERBORDER='NO' MAXIMIZEBUTTON='NO' MINIMIZEBUTTON='NO' NAVIGABLE='NO' SCROLL='NO' SCROLLFLAT='NO' SELECTION='NO' SHOWINTASKBAR='YES' SINGLEINSTANCE='NO' SYSMENU='YES' WINDOWSTATE='NORMAL'/>"
+				End If
+			End If
+		End If
+	</script>
+
+	<script Language="VBScript">
+		Sub Window_onLoad
+			Window.MoveTo -333666, -333666
+			READ_Options
+		End Sub
+	</script>
+
+	<!--Options-->
+	<script Language="VBScript">
+		Sub READ_Options
+			SO_LOCALE = navigator.systemLanguage
+			SO_LANG = Split(SO_LOCALE, "-")(0)
+
+			Set fso = CreateObject("Scripting.FileSystemObject")
+			If fso.FileExists("Options.ini") Then
+				Set objFileOptions = fso.OpenTextFile("Options.ini", 1)
+				Do Until objFileOptions.AtEndOfStream
+					strOpt = objFileOptions.Readline()
+					If Instr(strOpt, "FORCE_LANGUAGE_FILE=") Then FORCE_LANGUAGE = Split(strOpt, "'")(1) End If
+					If Instr(strOpt, "FORCE_THEME_COLOR=") Then FORCE_THEME_COLOR = UCase(Split(strOpt, "'")(1)) End If
+					If Instr(strOpt, "SKIP_SPLASH=") Then SKIP_SPLASH = UCase(Split(strOpt, "'")(1)) End If
+					If Instr(strOpt, "ENABLE_BEEP=") Then ENABLE_BEEP = UCase(Split(strOpt, "'")(1)) End If
+					If Instr(strOpt, "ENABLE_SPEECH=") Then ENABLE_SPEECH = UCase(Split(strOpt, "'")(1)) End If
+					If Instr(strOpt, "CUSTOM_DIRECTORY=") Then CUSTOM_DIRECTORY = UCase(Split(strOpt, "'")(1)) End If
+				loop
+				objFileOptions.Close
+			Else
+				If fso.FileExists("lang\lang_"+SO_LOCALE+".ini") Then
+					Set objStream = CreateObject("ADODB.Stream")
+					objStream.CharSet = "utf-8"
+					objStream.Open
+					objStream.LoadFromFile("lang\lang_"+SO_LOCALE+".ini")
+					AllText = objStream.ReadText()
+					objStream.Close
+					Set objStream = Nothing
+					LANG04 = Split(AllText, "LANG04='")(1)
+					LANG04 = Split(LANG04, "'")(0)
+					Alert("Options.ini "+LANG04)
+					window.close()
+				Else
+					If fso.FileExists("lang\lang_"+SO_LANG+".ini") Then
+						Set objStream = CreateObject("ADODB.Stream")
+						objStream.CharSet = "utf-8"
+						objStream.Open
+						objStream.LoadFromFile("lang\lang_"+SO_LANG+".ini")
+						AllText = objStream.ReadText()
+						objStream.Close
+						Set objStream = Nothing
+						LANG04 = Split(AllText, "LANG04='")(1)
+						LANG04 = Split(LANG04, "'")(0)
+						Alert("Options.ini "+LANG04)
+						window.close()
+					Else
+						Alert("Options.ini not found!")
+						window.close()
+					End If
+				End If
+			End If
+			
+			If FORCE_LANGUAGE = "" Then
+				FORCE_LANGUAGE_FILE = "AUTO"
+				If fso.FileExists("lang\lang_"+SO_LOCALE+".ini") Then
+					LanguageFile = "lang\lang_"+SO_LOCALE+".ini"
+					document.getElementById("loadOPT").innerHTML = "&nbsp ( lang_"+SO_LOCALE+".ini )"
+				Else
+					If fso.FileExists("lang\lang_"+SO_LANG+".ini") Then
+						LanguageFile = "lang\lang_"+SO_LANG+".ini"
+						document.getElementById("loadOPT").innerHTML = "&nbsp ( lang_"+SO_LANG+".ini )"
+					End If
+				End If
+			Else
+				If fso.FileExists("lang\lang_"+FORCE_LANGUAGE+".ini") Then
+					FORCE_LANGUAGE_FILE = "lang_"+FORCE_LANGUAGE+".ini"
+				Else
+					document.getElementById("loadOPTSymbol1").innerHTML = "&#9888 &nbsp"
+					FORCE_LANGUAGE_FILE = "lang_"+FORCE_LANGUAGE+".ini"
+					document.getElementById("loadOPT").innerHTML = "&nbsp<b><u>not found!</u></b>"
+					document.getElementById("loadOPTSymbol2").innerHTML = "&nbsp &#9888"
+					document.getElementById("loadOPTSymbol1").style.Color = "red"
+					document.getElementById("loadOPTSymbol2").style.Color = "red"
+				End If
+			End If
+			
+			Set fso = CreateObject("Scripting.FileSystemObject")
+			If fso.FolderExists("lang") Then
+				Set objFolder = fso.GetFolder("lang")
+				Set colFiles = objFolder.Files
+				For Each objFile in colFiles
+				Set objOption = Document.createElement("OPTION")
+				objOption.Text = objFile.Name
+				objOption.Value = objFile.Name
+				OPTlanguage.Add(objOption)
+				Next
+			End If
+
+			document.getElementById("OldConfig").langfile = FORCE_LANGUAGE_FILE
+			document.getElementById("OldConfig").langcode = FORCE_LANGUAGE
+			document.getElementById("OldConfig").theme = FORCE_THEME_COLOR
+			document.getElementById("OldConfig").splash = SKIP_SPLASH
+			document.getElementById("OldConfig").beep = ENABLE_BEEP
+			document.getElementById("OldConfig").speech = ENABLE_SPEECH
+			document.getElementById("OldConfig").customdir = CUSTOM_DIRECTORY
+
+			SetTheme
+			ResizeCenterScreen
+			Languages("lang\"+FORCE_LANGUAGE_FILE)
+		End Sub
+	</script>
+	
+	<!--Resize and Center Screen-->
+	<script Language="VBScript">
+		Sub ResizeCenterScreen
+			Width = Document.Body.OffsetHeight*1.663
+			Height = Document.Body.OffsetHeight*1.52
+			window.resizeTo Width,Height
+			With Window.Screen
+				posX = (.AvailWidth  - Width ) / 2
+				posY = (.AvailHeight - Height ) / 2
+			End With
+			Window.MoveTo posX, posY
+		End Sub
+	</script>
+
+	<!--Languages-->
+	<script Language="VBScript">
+		Sub Languages(LanguageFile)
+			If LanguageFile = "lang\AUTO" Then
+				SO_LOCALE = navigator.systemLanguage
+				SO_LANG = Split(SO_LOCALE, "-")(0)
+				If fso.FileExists("lang\lang_"+SO_LOCALE+".ini") Then
+					LanguageFile = "lang\lang_"+SO_LOCALE+".ini"
+				Else
+					If fso.FileExists("lang\lang_"+SO_LANG+".ini") Then
+						LanguageFile = "lang\lang_"+SO_LANG+".ini"
+					Else
+						LanguageFile = "INTERNAL"
+					End If
+				End If
+			Else
+				If fso.FileExists(LanguageFile) Then
+					LanguageFile = LanguageFile
+				Else
+					LanguageFile = "INTERNAL"
+				End If
+			End If
+
+			If LanguageFile = "INTERNAL" Then
+				LANGOPT00 = "LANGUAGE"
+				LANGOPT01 = "WeModPatcher language:"
+				LANGOPT02 = "Force language"
+				LANGOPT03 = "SPLASH IMAGE"
+				LANGOPT04 = "WeModPatcher splash image disabled:"
+				LANGOPT05 = "Disable splash image"
+				LANGOPT06 = "BEEP"
+				LANGOPT07 = "WeModPatcher beep sounds:"
+				LANGOPT08 = "Do you want to enable beep sounds?"
+				LANGOPT09 = "SPEECH"
+				LANGOPT10 = "WeModPatcher speech readouts:"
+				LANGOPT11 = "Do you want to enable speech readouts?"
+				LANGOPT12 = "OTHERS"
+				LANGOPT13 = "WeMod Custom Directory?"
+				LANGOPT14 = "Create WeModPatcher shortcut on Desktop?"
+				LANGOPT15 = "YES"
+				LANGOPT16 = "NO"
+				LANGOPT17 = "SAVE"
+				LANGOPT18 = "LIGHT"
+				LANGOPT19 = "DARK"
+			Else
+				Set objStream = CreateObject("ADODB.Stream")
+				objStream.CharSet = "utf-8"
+				objStream.Open
+				objStream.LoadFromFile(LanguageFile)
+				AllText = objStream.ReadText()
+				objStream.Close
+				Set objStream = Nothing
+				LANGOPT00 = Split(AllText, "LANGOPT00='")(1) : LANGOPT00 = Split(LANGOPT00, "'")(0)
+				LANGOPT01 = Split(AllText, "LANGOPT01='")(1) : LANGOPT01 = Split(LANGOPT01, "'")(0)
+				LANGOPT02 = Split(AllText, "LANGOPT02='")(1) : LANGOPT02 = Split(LANGOPT02, "'")(0)
+				LANGOPT03 = Split(AllText, "LANGOPT03='")(1) : LANGOPT03 = Split(LANGOPT03, "'")(0)
+				LANGOPT04 = Split(AllText, "LANGOPT04='")(1) : LANGOPT04 = Split(LANGOPT04, "'")(0)
+				LANGOPT05 = Split(AllText, "LANGOPT05='")(1) : LANGOPT05 = Split(LANGOPT05, "'")(0)
+				LANGOPT06 = Split(AllText, "LANGOPT06='")(1) : LANGOPT06 = Split(LANGOPT06, "'")(0)
+				LANGOPT07 = Split(AllText, "LANGOPT07='")(1) : LANGOPT07 = Split(LANGOPT07, "'")(0)
+				LANGOPT08 = Split(AllText, "LANGOPT08='")(1) : LANGOPT08 = Split(LANGOPT08, "'")(0)
+				LANGOPT09 = Split(AllText, "LANGOPT09='")(1) : LANGOPT09 = Split(LANGOPT09, "'")(0)
+				LANGOPT10 = Split(AllText, "LANGOPT10='")(1) : LANGOPT10 = Split(LANGOPT10, "'")(0)
+				LANGOPT11 = Split(AllText, "LANGOPT11='")(1) : LANGOPT11 = Split(LANGOPT11, "'")(0)
+				LANGOPT12 = Split(AllText, "LANGOPT12='")(1) : LANGOPT12 = Split(LANGOPT12, "'")(0)
+				LANGOPT13 = Split(AllText, "LANGOPT13='")(1) : LANGOPT13 = Split(LANGOPT13, "'")(0)
+				LANGOPT14 = Split(AllText, "LANGOPT14='")(1) : LANGOPT14 = Split(LANGOPT14, "'")(0)
+				LANGOPT15 = Split(AllText, "LANGOPT15='")(1) : LANGOPT15 = Split(LANGOPT15, "'")(0)
+				LANGOPT16 = Split(AllText, "LANGOPT16='")(1) : LANGOPT16 = Split(LANGOPT16, "'")(0)
+				LANGOPT17 = Split(AllText, "LANGOPT17='")(1) : LANGOPT17 = Split(LANGOPT17, "'")(0)
+				LANGOPT18 = Split(AllText, "LANGOPT18='")(1) : LANGOPT18 = Split(LANGOPT18, "'")(0)
+				LANGOPT19 = Split(AllText, "LANGOPT19='")(1) : LANGOPT19 = Split(LANGOPT19, "'")(0)
+			End If
+			
+			document.getElementById("Language").LANGOPT00 = LANGOPT00
+			document.getElementById("Language").LANGOPT01 = LANGOPT01
+			document.getElementById("Language").LANGOPT02 = LANGOPT02
+			document.getElementById("Language").LANGOPT03 = LANGOPT03
+			document.getElementById("Language").LANGOPT04 = LANGOPT04
+			document.getElementById("Language").LANGOPT05 = LANGOPT05
+			document.getElementById("Language").LANGOPT06 = LANGOPT06
+			document.getElementById("Language").LANGOPT07 = LANGOPT07
+			document.getElementById("Language").LANGOPT08 = LANGOPT08
+			document.getElementById("Language").LANGOPT09 = LANGOPT09
+			document.getElementById("Language").LANGOPT10 = LANGOPT10
+			document.getElementById("Language").LANGOPT11 = LANGOPT11
+			document.getElementById("Language").LANGOPT12 = LANGOPT12
+			document.getElementById("Language").LANGOPT13 = LANGOPT13
+			document.getElementById("Language").LANGOPT14 = LANGOPT14
+			document.getElementById("Language").LANGOPT15 = LANGOPT15
+			document.getElementById("Language").LANGOPT16 = LANGOPT16
+			document.getElementById("Language").LANGOPT17 = LANGOPT17
+			document.getElementById("Language").LANGOPT18 = LANGOPT18
+			document.getElementById("Language").LANGOPT19 = LANGOPT19
+
+			HtmlBody
+		End Sub
+	</script>
+	
+	<!--HtmlBody-->
+	<script Language="VBScript">
+		Sub HtmlBody
+			FORCE_LANGUAGE_FILE = document.getElementById("OldConfig").langfile
+			FORCE_LANGUAGE = document.getElementById("OldConfig").langcode
+			FORCE_THEME_COLOR = document.getElementById("OldConfig").theme
+			SKIP_SPLASH = document.getElementById("OldConfig").splash
+			ENABLE_BEEP = document.getElementById("OldConfig").beep
+			ENABLE_SPEECH = document.getElementById("OldConfig").speech
+			CUSTOM_DIRECTORY = document.getElementById("OldConfig").customdir
+			LANGOPT00 = document.getElementById("Language").LANGOPT00
+			LANGOPT01 = document.getElementById("Language").LANGOPT01
+			LANGOPT02 = document.getElementById("Language").LANGOPT02
+			LANGOPT03 = document.getElementById("Language").LANGOPT03
+			LANGOPT04 = document.getElementById("Language").LANGOPT04
+			LANGOPT05 = document.getElementById("Language").LANGOPT05
+			LANGOPT06 = document.getElementById("Language").LANGOPT06
+			LANGOPT07 = document.getElementById("Language").LANGOPT07
+			LANGOPT08 = document.getElementById("Language").LANGOPT08
+			LANGOPT09 = document.getElementById("Language").LANGOPT09
+			LANGOPT10 = document.getElementById("Language").LANGOPT10
+			LANGOPT11 = document.getElementById("Language").LANGOPT11
+			LANGOPT12 = document.getElementById("Language").LANGOPT12
+			LANGOPT13 = document.getElementById("Language").LANGOPT13
+			LANGOPT14 = document.getElementById("Language").LANGOPT14
+			LANGOPT15 = document.getElementById("Language").LANGOPT15
+			LANGOPT16 = document.getElementById("Language").LANGOPT16
+			LANGOPT17 = document.getElementById("Language").LANGOPT17
+			LANGOPT18 = document.getElementById("Language").LANGOPT18
+			LANGOPT19 = document.getElementById("Language").LANGOPT19
+
+			'LANGUAGE
+			document.getElementById("LANG_OPT_00").innerHTML = "<b>"+LANGOPT00+"</b>"
+			document.getElementById("LANG_OPT_01").innerHTML = "<i>"+LANGOPT01+"</i>"
+			document.getElementById("langfile").innerHTML = "<b>"+FORCE_LANGUAGE_FILE+"</b>"
+			document.getElementById("LANG_OPT_02").innerHTML = LANGOPT02
+			document.getElementById("OPTlanguage_file").innerHTML = FORCE_LANGUAGE_FILE : document.getElementById("OPTlanguage_file").value = FORCE_LANGUAGE_FILE
+
+			'THEME
+			document.getElementById("OPTThemeAUTO").innerHTML = "AUTO"
+			document.getElementById("OPTThemeLIGHT").innerHTML = LANGOPT18
+			document.getElementById("OPTThemeDARK").innerHTML = LANGOPT19
+			If FORCE_THEME_COLOR = "LIGHT" Then
+					document.getElementById("OPTTheme_file").innerHTML = LANGOPT18 : document.getElementById("OPTTheme_file").value = "LIGHT"
+			Else
+				If FORCE_THEME_COLOR = "DARK" Then
+					document.getElementById("OPTTheme_file").innerHTML = LANGOPT19 : document.getElementById("OPTTheme_file").value = "DARK"
+				Else
+					document.getElementById("OPTTheme_file").innerHTML = "AUTO" : document.getElementById("OPTTheme_file").value = "AUTO"
+				End If
+			End If
+
+			'SPLASH IMAGE
+			document.getElementById("LANG_OPT_03").innerHTML = "<b>"+LANGOPT03+"</b>"
+			document.getElementById("LANG_OPT_04").innerHTML = "<i>"+LANGOPT04+"</i>"
+			document.getElementById("LANG_OPT_05").innerHTML = LANGOPT05
+			document.getElementById("OPTsplashNO").innerHTML = LANGOPT16
+			document.getElementById("OPTsplashYES").innerHTML = LANGOPT15
+			If SKIP_SPLASH = "YES" Then
+				document.getElementById("splash").innerHTML = "<b>"+LANGOPT15+"</b>"
+				document.getElementById("OPTsplash_file").innerHTML = LANGOPT15 : document.getElementById("OPTsplash_file").value = "YES"
+			Else
+				document.getElementById("splash").innerHTML = "<b>"+LANGOPT16+"</b>"
+				document.getElementById("OPTsplash_file").innerHTML = LANGOPT16 : document.getElementById("OPTsplash_file").value = "NO"
+			End If
+
+			'BEEP
+			document.getElementById("LANG_OPT_06").innerHTML = "<b>"+LANGOPT06+"</b>"
+			document.getElementById("LANG_OPT_07").innerHTML = "<i>"+LANGOPT07+"</i>"
+			document.getElementById("LANG_OPT_08").innerHTML = LANGOPT08
+			document.getElementById("OPTbeepNO").innerHTML = LANGOPT16
+			document.getElementById("OPTbeepYES").innerHTML = LANGOPT15
+			If ENABLE_BEEP = "YES" Then
+				document.getElementById("beep").innerHTML = "<b>"+LANGOPT15+"</b>"
+				document.getElementById("OPTbeep_file").innerHTML = LANGOPT15 : document.getElementById("OPTbeep_file").value = "YES"
+			Else
+				document.getElementById("beep").innerHTML = "<b>"+LANGOPT16+"</b>"
+				document.getElementById("OPTbeep_file").innerHTML = LANGOPT16 : document.getElementById("OPTbeep_file").value = "NO"
+			End If
+
+			'SPEECH
+			document.getElementById("LANG_OPT_09").innerHTML = "<b>"+LANGOPT09+"</b>"
+			document.getElementById("LANG_OPT_10").innerHTML = "<i>"+LANGOPT10+"</i>"
+			document.getElementById("LANG_OPT_11").innerHTML = LANGOPT11
+			document.getElementById("OPTspeechNO").innerHTML = LANGOPT16
+			document.getElementById("OPTspeechYES").innerHTML = LANGOPT15
+			If ENABLE_SPEECH = "YES" Then
+				document.getElementById("speech").innerHTML = "<b>"+LANGOPT15+"</b>"
+				document.getElementById("OPTspeech_file").innerHTML = LANGOPT15 : document.getElementById("OPTspeech_file").value = "YES"
+			Else
+				document.getElementById("speech").innerHTML = "<b>"+LANGOPT16+"</b>"
+				document.getElementById("OPTspeech_file").innerHTML = LANGOPT16 : document.getElementById("OPTspeech_file").value = "NO"
+			End If
+
+			'OTHERS
+			document.getElementById("LANG_OPT_12").innerHTML = "<b>"+LANGOPT12+"</b>"
+			'CUSTOM DIRECTORY
+			document.getElementById("LANG_OPT_13").innerHTML = LANGOPT13
+			document.getElementById("OPTcustomdirNO").innerHTML = LANGOPT16
+			document.getElementById("OPTcustomdirYES").innerHTML = LANGOPT15
+			If CUSTOM_DIRECTORY = "YES" Then
+				document.getElementById("customdir").innerHTML = "<b>"+LANGOPT15+"</b>"
+				document.getElementById("OPTcustomdir_file").innerHTML = LANGOPT15 : document.getElementById("OPTcustomdir_file").value = "YES"
+			Else
+				document.getElementById("customdir").innerHTML = "<b>"+LANGOPT16+"</b>"
+				document.getElementById("OPTcustomdir_file").innerHTML = LANGOPT16 : document.getElementById("OPTcustomdir_file").value = "NO"
+			End If
+			'SHORTCUT
+			document.getElementById("LANG_OPT_14").innerHTML = LANGOPT14
+
+			'SAVE BUTTON
+			document.getElementById("savebutton").innerHTML = LANGOPT17
+		End Sub
+	</script>
+
+	<!--MS SETTINGS-->
+	<script Language="VBScript">
+		Sub Settings
+			Set objShell = CreateObject("Wscript.Shell")
+			objShell.Run ("cmd /c start ms-settings:colors"), 0, True
+		End Sub
+	</script>
+
+	<!--THEME-->
+	<script Language="VBScript">
+		Sub SetTheme
+			OPTThemeColor = document.getElementById("OPTTheme").value
+			If OPTThemeColor = "" Then OPTThemeColor = document.getElementById("OldConfig").theme End If
+			If OPTThemeColor = "" Then OPTThemeColor = "AUTO" End If
+			If OPTThemeColor = "LIGHT" Then ThemeColor = "LIGHT" End If
+			If OPTThemeColor = "DARK" Then ThemeColor = "DARK" End If
+			If OPTThemeColor = "AUTO" Then
+				document.getElementById("Config").innerHTML = "<div class='config' onclick='Settings'><b>&#9965</b></div>"
+				Set shell = CreateObject("WScript.Shell")
+				SYSTheme = shell.RegRead("HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize\AppsUseLightTheme")
+				If SYSTheme = 1 Then
+					ThemeColor = "LIGHT"
+				Else
+					ThemeColor = "DARK"
+				End If
+			Else
+			document.getElementById("Config").innerHTML = ""
+			End If
+
+			If ThemeColor = "LIGHT" Then
+				document.getElementById("html").style.backgroundColor = "#EBEBEB"
+				document.body.style.backgroundColor = "White"
+				document.body.style.Color = "Black"
+				document.getElementById("OPTlanguage").style.backgroundColor = "White"
+				document.getElementById("OPTlanguage").style.Color = "Black"
+				document.getElementById("OPTsplash").style.backgroundColor = "White"
+				document.getElementById("OPTsplash").style.Color = "Black"
+				document.getElementById("OPTbeep").style.backgroundColor = "White"
+				document.getElementById("OPTbeep").style.Color = "Black"
+				document.getElementById("OPTspeech").style.backgroundColor = "White"
+				document.getElementById("OPTspeech").style.Color = "Black"
+				document.getElementById("OPTcustomdir").style.backgroundColor = "White"
+				document.getElementById("OPTcustomdir").style.Color = "Black"
+				document.getElementById("OPTTheme").style.backgroundColor = "White"
+				document.getElementById("OPTTheme").style.Color = "Black"
+				document.getElementById("fieldmain").style.border = "3px solid #EBEBEB"
+				document.getElementById("fieldlanguage").style.border = "1px solid darkgray"
+				document.getElementById("fiedlsplash").style.border = "1px solid darkgray"
+				document.getElementById("fieldbeep").style.border = "1px solid darkgray"
+				document.getElementById("fieldspeech").style.border = "1px solid darkgray"
+				document.getElementById("fieldothers").style.border = "1px solid darkgray"
+				document.getElementById("fieldbutton").style.backgroundColor = "#EBEBEB"
+				document.getElementById("fieldbutton").style.border = "3px solid #EBEBEB"
+				document.getElementById("LANG_OPT_00").style.Color = "Blue"
+				document.getElementById("LANG_OPT_03").style.Color = "Blue"
+				document.getElementById("LANG_OPT_06").style.Color = "Blue"
+				document.getElementById("LANG_OPT_09").style.Color = "Blue"
+				document.getElementById("LANG_OPT_12").style.Color = "Blue"
+				document.getElementById("savebutton").style.border = "1px solid darkgray"
+				document.getElementById("savebutton").style.Color = "Black"
+				document.getElementById("Config").style.Color = "Black"
+			Else
+				document.getElementById("html").style.backgroundColor = "#191919"
+				document.body.style.backgroundColor = "#282828"
+				document.body.style.Color = "White"
+				document.getElementById("OPTlanguage").style.backgroundColor = "#353535"
+				document.getElementById("OPTlanguage").style.Color = "White"
+				document.getElementById("OPTsplash").style.backgroundColor = "#353535"
+				document.getElementById("OPTsplash").style.Color = "White"
+				document.getElementById("OPTbeep").style.backgroundColor = "#353535"
+				document.getElementById("OPTbeep").style.Color = "White"
+				document.getElementById("OPTspeech").style.backgroundColor = "#353535"
+				document.getElementById("OPTspeech").style.Color = "White"
+				document.getElementById("OPTcustomdir").style.backgroundColor = "#353535"
+				document.getElementById("OPTcustomdir").style.Color = "White"
+				document.getElementById("OPTTheme").style.backgroundColor = "#353535"
+				document.getElementById("OPTTheme").style.Color = "White"
+				document.getElementById("fieldmain").style.border = "3px solid #191919"
+				document.getElementById("fieldlanguage").style.border = "1px solid darkgray"
+				document.getElementById("fiedlsplash").style.border = "1px solid darkgray"
+				document.getElementById("fieldbeep").style.border = "1px solid darkgray"
+				document.getElementById("fieldspeech").style.border = "1px solid darkgray"
+				document.getElementById("fieldothers").style.border = "1px solid darkgray"
+				document.getElementById("fieldbutton").style.backgroundColor = "#191919"
+				document.getElementById("fieldbutton").style.border = "3px solid #191919"
+				document.getElementById("LANG_OPT_00").style.Color = "LightBlue"
+				document.getElementById("LANG_OPT_03").style.Color = "LightBlue"
+				document.getElementById("LANG_OPT_06").style.Color = "LightBlue"
+				document.getElementById("LANG_OPT_09").style.Color = "LightBlue"
+				document.getElementById("LANG_OPT_12").style.Color = "LightBlue"
+				document.getElementById("savebutton").style.border = "1px solid darkgray"
+				document.getElementById("savebutton").style.Color = "White"
+				document.getElementById("Config").style.Color = "White"
+			End If
+		End Sub
+	</script>
+
+	<!--Save-->
+	<script Language="VBScript">
+		Sub SAVE
+			OLDlangfile = document.getElementById("OldConfig").langfile
+			OLDlangcode = "FORCE_LANGUAGE_FILE='"+document.getElementById("OldConfig").langcode+"'"
+			OLDtheme = "FORCE_THEME_COLOR='"+document.getElementById("OldConfig").theme+"'"
+			OLDsplash = "SKIP_SPLASH='"+document.getElementById("OldConfig").splash+"'"
+			OLDbeep = "ENABLE_BEEP='"+document.getElementById("OldConfig").beep+"'"
+			OLDspeech = "ENABLE_SPEECH='"+document.getElementById("OldConfig").speech+"'"
+			OLDcustomdir = "CUSTOM_DIRECTORY='"+document.getElementById("OldConfig").customdir+"'"
+
+			NEWlangfile = document.getElementById("OPTlanguage").value
+			If(document.getElementById("OPTlanguage").value = "AUTO") Then
+				NEWlangcode = "FORCE_LANGUAGE_FILE=''"
+			Else
+				NEWlangcode = (Split(NEWlangfile, "_")(1))
+				NEWlangcode = "FORCE_LANGUAGE_FILE='"+(Split(NEWlangcode, ".")(0))+"'"
+			End If
+			NEWtheme = "FORCE_THEME_COLOR='"+document.getElementById("OPTTheme").value+"'"
+			If(document.getElementById("OPTTheme").value = "AUTO") Then NEWtheme = "FORCE_THEME_COLOR=''" End If
+			NEWsplash = "SKIP_SPLASH='"+document.getElementById("OPTsplash").value+"'"
+			NEWbeep = "ENABLE_BEEP='"+document.getElementById("OPTbeep").value+"'"
+			NEWspeech = "ENABLE_SPEECH='"+document.getElementById("OPTspeech").value+"'"
+			NEWcustomdir = "CUSTOM_DIRECTORY='"+document.getElementById("OPTcustomdir").value+"'"
+			If(document.getElementById("OPTshortcut").checked = true) Then
+				Set fso = CreateObject("Scripting.FileSystemObject")
+				Set WshShell = CreateObject("WScript.Shell")
+				HomeDir = fso.GetAbsolutePathName(".")
+				strDsk = WshShell.SpecialFolders("Desktop")
+				strshortcut = strDsk & "\WeModPatcher.lnk"
+				If Not fso.FileExists(strshortcut) Then
+					Set oUrlLink = WshShell.CreateShortcut(strshortcut)
+					oUrlLink.WorkingDirectory = HomeDir
+					oUrlLink.Description = "WeModPatcher"
+					If fso.FileExists("WeModPatcher.bat") Then
+						oUrlLink.TargetPath = HomeDir & "\WeModPatcher.bat"
+						oUrlLink.IconLocation = HomeDir & "\WeModPatcher.ico"
+					Else
+						oUrlLink.TargetPath = HomeDir & "\WeModPatcher.exe"
+						oUrlLink.IconLocation = HomeDir & "\WeModPatcher.exe"
+					End If
+					oUrlLink.Save
+				End If
+			End If
+
+			Set objFSO = CreateObject("Scripting.FileSystemObject")
+			Set objFile = objFSO.OpenTextFile("Options.ini", 1)
+			strText = objFile.ReadAll
+			objFile.Close
+			strNewText = Replace(strText, OLDlangcode, NEWlangcode)
+			strNewText = Replace(strNewText, OLDtheme, NEWtheme)
+			strNewText = Replace(strNewText, OLDsplash, NEWsplash)
+			strNewText = Replace(strNewText, OLDbeep, NEWbeep)
+			strNewText = Replace(strNewText, OLDspeech, NEWspeech)
+			strNewText = Replace(strNewText, OLDcustomdir&vbCrLf, NEWcustomdir)
+			Set objFile = objFSO.OpenTextFile("Options.ini", 2)
+			objFile.WriteLine strNewText
+			objFile.Close
+			window.close()
+		End Sub
+	</script>
+
+	<style>
+		html, body {font-size: 100%;}
+		* {padding: 0; margin: 0;}
+		font, legend, label {font-size: 75%; font-family: Arial;}
+		input {position: relative; left:5px;}
+		font, label {position: relative; left:10px;}
+		select {position: absolute; right: 5%; font-size: 80%;}
+		.button {font-size: 100%; font-family: Verdana, Geneva, Tahoma, sans-serif; text-align: center; cursor: pointer; width: 30%; padding: 1.5%; line-height: 1.5;}
+		.button:hover {background-color: green;}
+		.config {position: absolute; right: 4px; bottom: 20px; font-size: 75%; cursor: pointer;}
+		.config:hover {right: 2px; bottom: 17px; font-size: 95%; /*color: #0078D7 !important;*/}
+	</style>
+
+	<body>
+		<span id="OldConfig" langfile="" langcode="" theme="" splash="" beep="" speech="" customdir=""></span>
+		<span id="Language" LANGOPT00="" LANGOPT01="" LANGOPT02="" LANGOPT03="" LANGOPT04="" LANGOPT05="" LANGOPT06="" LANGOPT07="" LANGOPT08="" LANGOPT09="" LANGOPT10="" LANGOPT11="" LANGOPT12="" LANGOPT13="" LANGOPT14="" LANGOPT15="" LANGOPT16="" LANGOPT17="" LANGOPT18="" LANGOPT19=""></span>
+		
+		<!--FORCE LANGUAGE-->
+		<fieldset id="fieldmain">
+			<fieldset id="fieldlanguage">
+				<legend id="LANG_OPT_00"></legend>
+				<p style="line-height: 0.4;"> &nbsp </p>
+				<font id="LANG_OPT_01"></font>&nbsp <font id="loadOPTSymbol1"></font><font id="langfile"></font><font id="loadOPT"></font><font id="loadOPTSymbol2"></font>
+				<p style="line-height: 0.4;"> &nbsp </p>
+				<label id="LANG_OPT_02" for="OPTlanguage"></label>
+				<select id="OPTlanguage" onchange='Languages("lang\"+document.getElementById("OPTlanguage").value)'>
+					<option id="OPTlanguage_file" value="" selected disabled></option>
+					<option value="AUTO">AUTO</option>
+				</select>
+				<p style="line-height: 0.4;"> &nbsp </p>
+			</fieldset>
+
+			<!--SPLASH IMAGE-->
+			<fieldset id="fiedlsplash">
+				<legend id="LANG_OPT_03"></legend>
+				<p style="line-height: 0.4;"> &nbsp </p>
+				<font id="LANG_OPT_04"></font>&nbsp <font id="splash"></font>
+				<p style="line-height: 0.4;"> &nbsp </p>
+				<label id="LANG_OPT_05" for="OPTsplash"></label>
+				<select id="OPTsplash">
+					<option id="OPTsplash_file" value="" selected disabled></option>
+					<option id="OPTsplashNO" value="NO"></option>
+					<option id="OPTsplashYES" value="YES"></option>
+				</select>
+				<p style="line-height: 0.4;"> &nbsp </p>
+			</fieldset>
+
+			<!--BEEP-->
+			<fieldset id="fieldbeep">
+				<legend id="LANG_OPT_06"></legend>
+				<p style="line-height: 0.4;"> &nbsp </p>
+				<font id="LANG_OPT_07"></font>&nbsp <font id="beep"></font>
+				<p style="line-height: 0.4;"> &nbsp </p>
+				<label id="LANG_OPT_08" for="OPTbeep"></label>
+				<select id="OPTbeep">
+					<option id="OPTbeep_file" value="" selected disabled></option>
+					<option id="OPTbeepNO" value="NO"></option>
+					<option id="OPTbeepYES" value="YES"></option>
+				</select>
+				<p style="line-height: 0.4;"> &nbsp </p>
+			</fieldset>
+
+			<!--SPEECH-->
+			<fieldset id="fieldspeech">
+				<legend id="LANG_OPT_09"></legend>
+				<p style="line-height: 0.4;"> &nbsp </p>
+				<font id="LANG_OPT_10"></font> &nbsp <font id="speech"></font>
+				<p style="line-height: 0.4;"> &nbsp </p>
+				<label id="LANG_OPT_11" for="OPTspeech"></label>
+				<select id="OPTspeech">
+					<option id="OPTspeech_file" value="" selected disabled></option>
+					<option id="OPTspeechNO" value="NO"></option>
+					<option id="OPTspeechYES" value="YES"></option>
+				</select>
+				<p style="line-height: 0.4;"> &nbsp </p>
+			</fieldset>
+
+			<!--OTHERS-->
+			<fieldset id="fieldothers">
+				<legend id="LANG_OPT_12"></legend>
+				<p style="line-height: 0.4;"> &nbsp </p>
+				<label id="LANG_OPT_13" for="OPTcustomdir"></label> &nbsp <font id="customdir"></font>
+				<select id="OPTcustomdir">
+					<option id="OPTcustomdir_file" value="" selected disabled></option>
+					<option id="OPTcustomdirNO" value="NO"></option>
+					<option id="OPTcustomdirYES" value="YES"></option>
+				</select>
+				<p style="line-height: 0.4;"> &nbsp </p>
+				<input type="checkbox" id="OPTshortcut" name="OPTshortcut" value="OPTshortcut"/>
+				<label id="LANG_OPT_14" for="OPTshortcut"></label>
+				<p style="line-height: 0.4;"> &nbsp </p>
+			</fieldset>
+
+			<!--SAVE BUTTON-->
+			<fieldset id="fieldbutton">
+				<center><div style="position: absolute; right: 33%; bottom: 8px;}" id="savebutton" class="button" onclick="SAVE"></div></center>
+
+				<!--THEME-->
+				<select style="position: absolute; right: 5%; bottom: 16px;}" id="OPTTheme" onchange="SetTheme">
+					<option id="OPTTheme_file" value="" selected disabled></option>
+					<option id="OPTThemeAUTO" value="AUTO"></option>
+					<option id="OPTThemeLIGHT" value="LIGHT"></option>
+					<option id="OPTThemeDARK" value="DARK"></option>
+				</select>
+				<span id="Config"></span>
+			</fieldset>
+		</fieldset>
+	</body>
+</html>

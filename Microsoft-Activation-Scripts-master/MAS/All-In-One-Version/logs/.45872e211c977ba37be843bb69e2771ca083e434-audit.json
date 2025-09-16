@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "F:\\backup\\windowsapps\\install\\Microsoft-Activation-Scripts-master\\MAS\\All-In-One-Version\\logs\\.45872e211c977ba37be843bb69e2771ca083e434-audit.json",
+    "files": [
+        {
+            "date": 1757799578152,
+            "name": "F:\\backup\\windowsapps\\install\\Microsoft-Activation-Scripts-master\\MAS\\All-In-One-Version\\logs\\mcp-puppeteer-2025-09-14.log",
+            "hash": "d48623a08463a5b9e3beab281f16e90e5b2d958931b12e724a71a2790ebe674f"
+        }
+    ],
+    "hashType": "sha256"
+}
